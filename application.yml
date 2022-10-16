@@ -1,0 +1,29 @@
+#sample application.yml
+
+signal:                                 # required
+  registered_number: "15558675309"      # required
+  admin_number: "15551234567"           # optional
+
+integrations:                           # optional
+  http:                                 # optional
+    port: "8080"                        # opinionated default
+  kafka:                                # optional
+    topic: "foo"                        # not null
+
+persistence:                            # optional - pick one
+  sqlite:                               # optional
+    dbname: "signalforthings.db"        # opinionated default
+  #lowdb:                               # optional
+
+logging:                                # optional
+  filename: "signalforthings.log"        # opinionated default
+  location: "."                         # opinionated default
+
+#  {
+#    signal: { registered_number: '15558675309', admin_number: '15551234567' },
+#    integrations: { http: { port: '8080' }, kafka: { topic: 'foo' } },
+#    persistence: { sqlite: { dbname: 'signalforthings.db' } },
+#    logging: { filename: 'signalforthings.log', location: '.' }
+#  }
+
+

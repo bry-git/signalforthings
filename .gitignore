@@ -1,5 +1,11 @@
+#.gitignore
+# config files
+application.yml
+
 # sqlite
 *.db
+
+.env
 
 #artifacts
 build/

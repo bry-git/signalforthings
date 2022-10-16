@@ -1,17 +1,20 @@
-import {Repository} from "./Repository";
 import {execa} from 'execa'
-import {Component, ExecaObject, Message, MessageRequest} from "./globals";
-import {logger} from "./Util/util";
+import {ApplicationConfig, Component, ExecaObject, Message, MessageRequest} from "./globals";
+import {Logger} from "./util/Logger";
+import {DataSource} from "./persistence/DataSource";
 
 export class Service {
-    private repository: Repository;
+    private dataSource: DataSource;
     private execa: any;
     private userAgent: any;
+    private logger: Logger
 
-    constructor() {
-        this.repository = new Repository()
+    constructor(config: ApplicationConfig, dataSource: DataSource, logger: Logger) {
+        this.dataSource = dataSource
         this.execa = execa
-        this.userAgent = process.env.USER_AGENT
+        this.userAgent = config.signal.registered_number
+        this.logger = logger
+        this.logger.out(Component.Service, "configured")
     }
 
     async getPublicIp(): Promise<ExecaObject> {
@@ -20,19 +23,14 @@ export class Service {
 
     async sendMessage(messageRequest: MessageRequest): Promise<ExecaObject> {
         try {
-            const saved: Message = await this.repository.saveOne(messageRequest)
             const args: string[] = ['-u', `+${this.userAgent}`, 'send', '-m', `${messageRequest.message}`, `+${messageRequest.recipient}`]
+            const saved: Message = await this.dataSource.saveOne(messageRequest)
 
             if(!!messageRequest.file) args.push('-a',`${messageRequest.attatchmentStoragePath}`)
 
-            const eo: ExecaObject = await this.execa('signal-cli', args)
-
-            logger(Component.Service, "executing: ", eo.command)
-            logger(Component.Service, "saved message successfully", saved)
-
-            return eo
+            return await this.execa('signal-cli', args)
         } catch (error) {
-            logger(Component.Error, null, error)
+            this.logger.out(Component.Error, null, error)
             throw new Error()
         }
     }

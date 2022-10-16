@@ -1,26 +1,30 @@
 import express, {Express, Request, Response} from 'express';
 import multer, {Multer} from 'multer'
-import {Service} from "./Service";
-import {Component, ExecaObject, MessageRequest} from "./globals";
+import {Service} from "../Service";
+import {ApplicationConfig, Component, ExecaObject, MessageRequest} from "../globals";
 import cors from 'cors'
-import {dateFormatter, isValidRequest, logger} from "./Util/util";
+import {dateFormatter, isValidRequest} from "../util/util";
+import {Logger} from "../util/Logger";
 
-export class Controller {
+export class HttpController {
     private express: Express;
     private multer: Multer;
     private service: Service;
     private readonly port: any;
     private readonly storagePath: string;
+    private logger: Logger
 
-    constructor() {
+    constructor(config: ApplicationConfig, service: Service, logger: Logger) {
         this.express = express();
         this.storagePath = '/signalforthings/attachments/'
         this.multer = multer({storage: multer.diskStorage({
                 destination: (req, file, cb) => cb(null, this.storagePath),
                 filename: (req, file, cb) => cb(null, `${dateFormatter()}.${file.originalname.split('.').pop()}`)
             })});
-        this.port = process.env.PORT;
-        this.service = new Service()
+        this.port = (config.integrations.http?.port) ? config.integrations.http.port : 8080
+        this.service = service
+        this.logger = logger
+        this.run()
     }
 
     run(): void {
@@ -47,7 +51,6 @@ export class Controller {
          */
         this.express.post('/outgoing/attached', this.multer.single('file'), async (req: Request, res: Response) => {
             try {
-                logger(Component.Controller, "headers: ", req.headers)
 
                 if(!req.body.tag) {req.body.tag = req.headers['user-agent']}
                 const messageRequest = req.body as MessageRequest
@@ -67,7 +70,7 @@ export class Controller {
         })
 
         this.express.listen(this.port, () => {
-            logger(Component.Controller, `running at http://localhost:${this.port}`)
+            this.logger.out(Component.Controller, `running at http://localhost:${this.port}`)
         });
     }
 }
