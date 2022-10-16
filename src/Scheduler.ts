@@ -1,17 +1,21 @@
 import * as cron from 'node-cron'
 import {Service} from "./Service";
-import {logger} from "./Util/util";
-import {Component, ExecaObject, MessageRequest} from "./globals";
+import {ApplicationConfig, Component, ExecaObject, MessageRequest} from "./globals";
+import {Logger} from "./util/Logger";
 
 export class Scheduler {
     private cron: any;
     private service: Service
     private userAgent: any;
+    private admin: any;
+    private logger: Logger
 
-    constructor() {
+    constructor(config: ApplicationConfig, service: Service, logger: Logger) {
         this.cron = cron
-        this.service = new Service()
-        this.userAgent = process.env.USER_AGENT
+        this.service = service
+        this.userAgent = config.signal.registered_number
+        this.logger = logger
+        this.logger.out(Component.Scheduler, "configured")
     }
 
     /**
@@ -20,7 +24,7 @@ export class Scheduler {
     ipWatchdog() {
         const task = this.cron.schedule('0 */4 * * *', async () => {
             const eo: ExecaObject = await this.service.getPublicIp()
-            logger(Component.Scheduler, `public ip is ${eo.stdout}`)
+            this.logger.out(Component.Scheduler, `public ip is ${eo.stdout}`)
             const messageRequest: MessageRequest = {
                 sender: this.userAgent,
                 recipient: `${process.env.ADMIN}`,

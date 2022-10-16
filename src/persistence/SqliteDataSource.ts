@@ -1,12 +1,14 @@
 import sqlite3 from 'sqlite3'
-import {Message, MessageRequest} from "./globals";
-import {dateFormatter} from "./Util/util";
+import {ApplicationConfig, Message, MessageRequest} from "../globals";
+import {dateFormatter} from "../util/util";
+import {DataSource} from "./DataSource";
 
-export class Repository {
+export class SqliteDataSource implements DataSource{
     private db: any;
 
-    constructor() {
-        this.db = new sqlite3.Database("signalforthings.db")
+    constructor(config: ApplicationConfig) {
+        const dbname = (config.persistence?.sqlite?.dbname) ? config.persistence.sqlite.dbname : "signalforthings.db"
+        this.db = new sqlite3.Database(dbname)
         this.init()
     }
 

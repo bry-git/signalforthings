@@ -34,10 +34,38 @@ export interface ExecaObject {
     killed: boolean
 }
 
+export interface ApplicationConfig {
+    signal: {
+        registered_number: number
+        admin_number?: number
+    }
+    integrations: {
+        http?: {
+            port: number
+        }
+        kafka?: {
+            topic: string
+        }
+    }
+    persistence?: {
+        sqlite?: {
+            dbname: string
+        }
+        lowdb?: {
+            file: string
+        }
+    }
+    logging?: {
+        filename: string,
+        location: string
+    }
+}
+
 export const enum Component {
     Main = "⚙️ [main]:",
     Scheduler = "⏰ [scheduler]:",
     Controller = "⚡️ [controller]:",
+    KafKaConsumer = "🦠 [kafka_consumer]:",
     Service = "🔌 [service]:",
     Repository = "💽 [repository]",
     Error = "🤯 [ERROR]:"
