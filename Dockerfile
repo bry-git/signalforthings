@@ -26,6 +26,8 @@ RUN tar xf signal-cli-0.10.8-Linux.tar.gz -C /opt
 
 RUN ln -sf /opt/signal-cli-0.10.8/bin/signal-cli /usr/local/bin/
 
+COPY application.yml /signalforthings/application.yml
+
 COPY package.json /signalforthings/package.json
 
 COPY build/signalforthings.js /signalforthings
@@ -34,6 +36,6 @@ RUN npm install
 
 RUN rm package.json && rm package-lock.json
 
-EXPOSE 8080
+EXPOSE 8080 #TODO make this dynamic from application.yml
 
 CMD [ "node", "/signalforthings/signalforthings.js"]

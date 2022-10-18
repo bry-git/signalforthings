@@ -20,7 +20,6 @@ const App = () => {
     var controller: HttpController
     var consumer: KafkaConsumer
     var scheduler: Scheduler
-
     var logger = new Logger(config)
 
     if(!!config.persistence) {

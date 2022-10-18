@@ -1,7 +1,6 @@
 import {ApplicationConfig, Component} from "../globals";
 import {dateFormatter} from "./util";
 import fs from "fs";
-import yaml from "js-yaml";
 
 export class Logger{
     private filename: any
